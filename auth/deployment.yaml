@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deployment
+  namespace: searchengine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+      - name: auth-api
+        image: elasticmofos/auth:0.1.0
+        envFrom:
+          - secretRef:
+              name: auth-secret
+          - configMapRef:
+              name: proxy-ip-config
+        ports:
+        - containerPort: 8000

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: searchengine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: elasticmofos/frontend:0.1.0
+        envFrom:
+          - configMapRef:
+              name: proxy-ip-config
+        ports:
+        - containerPort: 8000
