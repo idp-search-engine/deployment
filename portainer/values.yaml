@@ -1,0 +1,15 @@
+enterpriseEdition:
+  enabled: false
+service:
+  type: ClusterIP
+ingress:
+  enabled: true
+  ingressClassName: kong
+  hosts:
+    - paths:
+      - path: "/portainer"
+  annotations:
+    konghq.com/strip-path: "true"
+
+image:
+  pullPolicy: "IfNotPresent"

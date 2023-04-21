@@ -1,30 +1,24 @@
 ## Install kong
 kubectl create namespace kong
 kubectl create secret generic kong-enterprise-license --from-literal=license="'{}'" -n kong --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -f https://raw.githubusercontent.com/Kong/kubernetes-ingress-controller/v2.9.0/deploy/single/all-in-one-dbless-k4k8s-enterprise.yaml
+
+helm repo add kong https://charts.konghq.com
+helm repo update
+helm upgrade --install --namespace kong minimal kong/kong --values kong/values.yaml
 
 ## Wait for kong pods
-echo "Wait for proxy kong to reach ready..."
-kubectl wait --for=condition=ready pod -l app=proxy-kong -n kong
-
-echo "Wait for ingress kong to reach ready..."
-kubectl wait --for=condition=ready pod -l app=ingress-kong -n kong
+echo "Wait for kong pod to reach ready..."
+kubectl wait --for=condition=ready pod -l app=minimal-kong -n kong
 
 ## Extract Proxy IP
-PROXY_IP=$(kubectl get -o jsonpath="{.status.loadBalancer.ingress[0].hostname}" service -n kong kong-proxy)
+PROXY_IP=$(kubectl get -o jsonpath="{.status.loadBalancer.ingress[0].hostname}" service -n kong minimal-kong-proxy)
 
 echo "Proxy IP is ${PROXY_IP}"
 
 ## Install Portainer
-helm upgrade --install --create-namespace -n portainer portainer portainer/portainer \
-     --set enterpriseEdition.enabled=false \
-     --set service.type=ClusterIP \
-     --set ingress.enabled=true \
-     --set ingress.ingressClassName=kong \
-     --set ingress.hosts[0].paths[0].path="/portainer" \
-     --set image.pullPolicy="IfNotPresent"
-
-kubectl annotate ingress portainer konghq.com/strip-path=true -n portainer
+helm repo add portainer https://portainer.github.io/k8s/
+helm repo update
+helm upgrade --install --create-namespace -n portainer portainer portainer/portainer --values portainer/values.yaml
 
 ## Search engine namespace
 kubectl create namespace searchengine

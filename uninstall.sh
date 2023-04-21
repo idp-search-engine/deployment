@@ -1,5 +1,6 @@
 ## Uninstall kong resources
-kubectl delete -f https://raw.githubusercontent.com/Kong/kubernetes-ingress-controller/v2.9.0/deploy/single/all-in-one-dbless-k4k8s-enterprise.yaml
+helm uninstall minimal -n kong
+kubectl delete namespace kong
 
 ## Uninstall portainer resources
 helm uninstall portainer -n portainer
@@ -16,8 +17,8 @@ kubectl delete -f ./frontend/deployment.yaml
 kubectl delete -f ./frontend/service.yaml
 kubectl delete -f ./frontend/ingress.yaml
 
-kubectl apply -f ./auth/deployment.yaml
-kubectl apply -f ./auth/service.yaml
-kubectl apply -f ./auth/ingress.yaml
+kubectl delete -f ./auth/deployment.yaml
+kubectl delete -f ./auth/service.yaml
+kubectl delete -f ./auth/ingress.yaml
 
 kubectl delete namespace searchengine
