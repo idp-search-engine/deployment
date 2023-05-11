@@ -3,6 +3,9 @@ KONG_NS="kong"
 PORTAINER_NS="portainer"
 APP_NS="searchengine"
 
+## Search engine namespace
+kubectl create namespace ${APP_NS}
+
 ## Install kong
 kubectl create namespace ${KONG_NS}
 
@@ -23,19 +26,44 @@ PROXY_IP=${HOST}:${PORT}
 
 echo "Proxy IP is ${PROXY_IP}"
 
+## Setup ELK Infra
+./elk.sh
+
 ## Install Portainer
 helm repo add portainer https://portainer.github.io/k8s/
 helm repo update
-helm upgrade --install --create-namespace -n ${PORTAINER_NS} portainer portainer/portainer --values portainer/values.yaml
-
-## Search engine namespace
-kubectl create namespace ${APP_NS}
+helm upgrade --install --create-namespace -n ${PORTAINER_NS} portainer portainer/portainer --version 1.0.41 --values portainer/values.yaml
 
 ## Create configmap with Proxy IP
 kubectl create configmap proxy-ip-config -n ${APP_NS} --from-literal=PROXY_IP=${PROXY_IP}
 
-## Ceate secret with auth credentials
+## Create secret with auth credentials
 kubectl create secret generic auth-secret -n ${APP_NS} --from-env-file=./auth/.env
+
+## Create es interactor secret
+kubectl create secret generic es-interactor-secret -n ${APP_NS} --from-env-file=./es-interactor/.env
+
+## Create web crawler secret
+kubectl create secret generic web-crawler-secret -n ${APP_NS} --from-env-file=./web-crawler/.env
+
+## Install es interactor
+kubectl apply -f ./es-interactor/deployment.yaml -n ${APP_NS}
+kubectl apply -f ./es-interactor/service.yaml -n ${APP_NS}
+
+## Wait for es interactor
+echo "Wait for es interactor pods to reach ready..."
+kubectl wait --for=condition=ready pod -l app=es-interactor -n ${APP_NS}
+
+## Install web crawler
+kubectl apply -f ./web-crawler/api.yaml -n ${APP_NS}
+kubectl apply -f ./web-crawler/flower.yaml -n ${APP_NS}
+kubectl apply -f ./web-crawler/worker.yaml -n ${APP_NS}
+
+## Wait for web crawler
+echo "Wait for web crawler pods to reach ready..."
+kubectl wait --for=condition=ready pod -l app=web-crawler-api -n ${APP_NS}
+kubectl wait --for=condition=ready pod -l app=web-crawler-flower -n ${APP_NS}
+kubectl wait --for=condition=ready pod -l app=web-crawler-worker -n ${APP_NS}
 
 ## Install frontend
 kubectl apply -f ./frontend/deployment.yaml -n ${APP_NS}

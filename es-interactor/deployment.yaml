@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: es-interactor-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: es-interactor
+  template:
+    metadata:
+      labels:
+        app: es-interactor
+    spec:
+      containers:
+      - name: es-interactor-api
+        image: elasticmofos/es-interactor:0.1.0
+        imagePullPolicy: "IfNotPresent"
+        envFrom:
+          - secretRef:
+              name: es-interactor-secret
+        ports:
+        - containerPort: 8000
