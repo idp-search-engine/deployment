@@ -22,6 +22,9 @@ kubectl wait --for=condition=ready pod -l app=minimal-kong -n ${KONG_NS}
 ## Extract Proxy IPs
 HOST=$(kubectl get -o jsonpath="{.status.loadBalancer.ingress[0].hostname}" service -n ${KONG_NS} minimal-kong-proxy)
 PORT=$(kubectl get svc --namespace ${KONG_NS} minimal-kong-proxy -o jsonpath='{.spec.ports[0].port}')
+
+if [ -z ${HOST} ]; then HOST=localhost; PORT=8000; EMPTY_HOST=1; fi
+
 PROXY_IP=${HOST}:${PORT}
 
 echo "Proxy IP is ${PROXY_IP}"
@@ -36,6 +39,9 @@ helm upgrade --install --create-namespace -n ${PORTAINER_NS} portainer portainer
 
 ## Create configmap with Proxy IP
 kubectl create configmap proxy-ip-config -n ${APP_NS} --from-literal=PROXY_IP=${PROXY_IP}
+
+## Create configmap with frontend needed hosts
+kubectl create configmap frontend-config -n ${APP_NS} --from-env-file=./frontend/.env
 
 ## Create secret with auth credentials
 kubectl create secret generic auth-secret -n ${APP_NS} --from-env-file=./auth/.env
@@ -84,3 +90,7 @@ echo "Wait for auth pods to reach ready..."
 kubectl wait --for=condition=ready pod -l app=auth -n ${APP_NS}
 
 echo "Installation finished"
+
+if [ -n ${EMPTY_HOST} ]; then
+echo "Forward port: kubectl port-forward --namespace ${KONG_NS} svc/minimal-kong-proxy ${PORT}:80";
+fi

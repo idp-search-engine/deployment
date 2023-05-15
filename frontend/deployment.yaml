@@ -14,9 +14,12 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: elasticmofos/frontend:0.1.0
+        image: elasticmofos/frontend:0.2.0
+        imagePullPolicy: IfNotPresent
         envFrom:
           - configMapRef:
               name: proxy-ip-config
+          - configMapRef:
+              name: frontend-config
         ports:
         - containerPort: 8000

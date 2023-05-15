@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: es-interactor-api
-        image: elasticmofos/es-interactor:0.1.0
+        image: elasticmofos/es-interactor:0.1.1
         imagePullPolicy: "IfNotPresent"
         envFrom:
           - secretRef:

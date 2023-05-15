@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: web-crawler-flower
-        image: elasticmofos/web-crawler:0.1.0
+        image: elasticmofos/web-crawler:0.1.1
         env:
         - name: CONTAINER_TYPE
           value: flower
@@ -75,21 +75,3 @@ spec:
             name: web-crawler-flower-service
             port:
               number: 5555
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: web-crawler-ingress2
-spec:
-  ingressClassName: kong
-  rules:
-    - host: celery-flower.example.com # Replace with your desired host
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: celery-flower
-                port:
-                  name: http

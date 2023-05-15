@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: web-crawler-worker
-        image: elasticmofos/web-crawler:0.1.0
+        image: elasticmofos/web-crawler:0.1.1
         env:
         - name: CONTAINER_TYPE
           value: worker
