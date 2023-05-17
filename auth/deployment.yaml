@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: auth-api
-        image: elasticmofos/auth:0.1.0
+        image: elasticmofos/auth:0.2.0
         envFrom:
           - secretRef:
               name: auth-secret
