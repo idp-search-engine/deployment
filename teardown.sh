@@ -16,12 +16,17 @@ kubectl delete configmap proxy-ip-config -n ${APP_NS}
 
 ## Remove elk
 helm uninstall elasticsearch -n ${APP_NS}
+kubectl delete pvc elasticsearch-master-elasticsearch-master-0 -n ${APP_NS}
+kubectl delete pvc elasticsearch-master-elasticsearch-master-1 -n ${APP_NS}
+kubectl delete pvc elasticsearch-master-elasticsearch-master-2 -n ${APP_NS}
+
 helm uninstall kibana -n ${APP_NS}
 helm uninstall logstash -n ${APP_NS}
 helm uninstall filebeat -n ${APP_NS}
 
 ## Remove Rabbitmq
-helm uninstall rabbitmq -n ${APP_NS}
+helm uninstall rabbitmq
+kubectl delete pvc  data-rabbitmq-0
 
 ## Remove Redis
 helm uninstall redis -n ${APP_NS}

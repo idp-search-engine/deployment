@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: elasticmofos/frontend:0.2.0
+        image: elasticmofos/frontend:0.4.0
         imagePullPolicy: IfNotPresent
         envFrom:
           - configMapRef:

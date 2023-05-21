@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: web-crawler-api
-        image: elasticmofos/web-crawler:0.1.1
+        image: elasticmofos/web-crawler:0.2.0
         env:
         - name: CONTAINER_TYPE
           value: api

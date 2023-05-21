@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: web-crawler-flower
-        image: elasticmofos/web-crawler:0.1.1
+        image: elasticmofos/web-crawler:0.2.0
         env:
         - name: CONTAINER_TYPE
           value: flower
@@ -47,31 +47,11 @@ spec:
   rules:
   - http:
       paths:
-      - path: /tasks
+      - path: /flower
         pathType: Prefix
         backend:
           service:
             name: web-crawler-flower-service
             port:
               number: 5555
-      - path: /broker
-        pathType: Prefix
-        backend:
-          service:
-            name: web-crawler-flower-service
-            port:
-              number: 5555
-      - path: /dashboard
-        pathType: Prefix
-        backend:
-          service:
-            name: web-crawler-flower-service
-            port:
-              number: 5555
-      - path: /worker
-        pathType: Prefix
-        backend:
-          service:
-            name: web-crawler-flower-service
-            port:
-              number: 5555
+
