@@ -32,6 +32,8 @@ daemonset:
       - type: container
         paths:
           - /var/log/containers/*.log
+        backoff: 5s
+        harvester_limit: 2
         stream: all
         processors:
         - add_kubernetes_metadata:

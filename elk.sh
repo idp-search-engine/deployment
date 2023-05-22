@@ -4,6 +4,8 @@ PORTAINER_NS="portainer"
 APP_NS="searchengine"
 
 ## Install Elastic Search
+helm repo add elastic https://helm.elastic.co
+helm repo update
 helm upgrade --install --namespace ${APP_NS} elasticsearch elastic/elasticsearch --version 7.17.3 --values ./elk/elasticsearch/values.yaml
 echo "Wait for elastic search pods to reach ready..."
 kubectl wait --for=condition=ready pod -l app=elasticsearch-master -n ${APP_NS} --timeout=180s
@@ -26,7 +28,7 @@ kubectl wait --for=condition=ready pod -l app=filebeat-filebeat -n ${APP_NS} --t
 ## Get Filebeat pod name
 FILEBEAT_POD=$(kubectl get pods -n ${APP_NS} -l app=filebeat-filebeat -o jsonpath='{.items[0].metadata.name}')
 
-## Setup dashboards
+# ## Setup dashboards
 kubectl exec -it ${FILEBEAT_POD} -n ${APP_NS} -- bash -c "filebeat setup --index-management -E output.logstash.enabled=false -E 'output.elasticsearch.hosts=["elasticsearch-master:9200"]' -E setup.ilm.overwrite=true"
 kubectl exec -it ${FILEBEAT_POD} -n ${APP_NS} -- bash -c "filebeat setup --dashboards"
 
@@ -38,7 +40,9 @@ kubectl exec ${KIBANA_POD} -n ${APP_NS} -- /bin/sh -c "`cat ./es-templates/websi
 kubectl exec ${KIBANA_POD} -n ${APP_NS} -- /bin/sh -c "`cat ./es-templates/index_template_websites.sh`"
 
 ## Install Redis
-helm upgrade --install --namespace ${APP_NS} redis --set auth.password=${REDIS_PASSWORD} --set persistence.storageClass=nfs-client,redis.replicas.persistence.storageClass=nfs-client bitnami/redis --set volumePermissions.enabled=true --values redis/values.yaml
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm upgrade --install --namespace ${APP_NS} redis --set auth.password=morbius --set persistence.storageClass=nfs-client,redis.replicas.persistence.storageClass=nfs-client bitnami/redis --set volumePermissions.enabled=true --values redis/values.yaml
 echo "Wait for redis pods to reach ready..."
 kubectl wait --for=condition=ready pod redis-master-0 -n ${APP_NS} --timeout=180s
 kubectl wait --for=condition=ready pod redis-replicas-0 -n ${APP_NS} --timeout=180s
